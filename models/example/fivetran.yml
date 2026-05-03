@@ -1,7 +1,6 @@
 version: 2
 
-
-Sources:
+sources:
   - name: fivetran
     database: FIVETRAN
     schema: GMAIL
