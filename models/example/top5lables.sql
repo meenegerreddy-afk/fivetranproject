@@ -3,4 +3,4 @@ FROM {{ source('fivetran', 'MESSAGE_LABEL') }} ml
 JOIN {{ source('fivetran', 'LABEL') }} l ON ml.label_id = l.id
 GROUP BY l.name
 ORDER BY message_count DESC
-LIMIT 5;
+LIMIT 5
