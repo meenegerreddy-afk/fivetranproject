@@ -1,0 +1,12 @@
+version: 2
+
+
+Sources:
+  - name: fivetran
+    database: FIVETRAN
+    schema: GMAIL
+    tables:
+      - name: THREAD
+      - name: MESSAGE
+      - name: LABEL
+      - name: MESSAGE_LABEL
