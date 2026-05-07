@@ -6,6 +6,71 @@ sources:
     schema: GMAIL
     tables:
       - name: THREAD
+        columns:
+          - name: id
+            tests:
+              - not_null:
+                  store_failures: true
+              - unique:
+                  store_failures: true
+
       - name: MESSAGE
+        columns:
+          - name: id
+            tests:
+              - not_null:
+                  store_failures: true
+              - unique:
+                  store_failures: true
+          - name: thread_id
+            tests:
+              - relationships:
+                  to: source('fivetran', 'THREAD')
+                  field: id
+                  store_failures: true
+
       - name: LABEL
+        columns:
+          - name: id
+            tests:
+              - not_null:
+                  store_failures: true
+              - unique:
+                  store_failures: true
+
       - name: MESSAGE_LABEL
+        columns:
+          - name: message_id
+            tests:
+              - relationships:
+                  to: source('fivetran', 'MESSAGE')
+                  field: id
+                  store_failures: true
+          - name: label_id
+            tests:
+              - relationships:
+                  to: source('fivetran', 'LABEL')
+                  field: id
+                  store_failures: true
+
+tests:
+  # ✅ Custom SQL test: Messages without subject
+  - name: message_without_subject
+    test: >
+      SELECT *
+      FROM {{ source('fivetran','MESSAGE') }}
+      WHERE subject IS NULL
+    store_failures: true
+
+  # ✅ Trend test: Ensure MESSAGE count grows over time
+  - name: message_trend_growth
+    test: >
+      WITH counts AS (
+        SELECT DATE(created_at) AS day, COUNT(*) AS cnt
+        FROM {{ source('fivetran','MESSAGE') }}
+        GROUP BY day
+      )
+      SELECT *
+      FROM counts
+      WHERE cnt < LAG(cnt) OVER (ORDER BY day)
+    store_failures: true
